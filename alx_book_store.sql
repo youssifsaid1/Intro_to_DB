@@ -1,45 +1,25 @@
--- إنشاء قاعدة البيانات
-CREATE DATABASE IF NOT EXISTS alx_book_store;
-USE alx_book_store;
+import mysql.connector
+from mysql.connector import Error
 
--- جدول Authors
-CREATE TABLE Authors (
-    author_id INT PRIMARY KEY AUTO_INCREMENT,
-    author_name VARCHAR(215) NOT NULL
-);
+try:
+    # الاتصال بسيرفر MySQL
+    connection = mysql.connector.connect(
+        host='localhost',   # عدّل لو السيرفر عندك مختلف
+        user='root',        # عدّل باسم المستخدم
+        password='your_password'  # عدّل بكلمة السر
+    )
 
--- جدول Books
-CREATE TABLE Books (
-    book_id INT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(130) NOT NULL,
-    author_id INT,
-    price DOUBLE,
-    publication_date DATE,
-    FOREIGN KEY (author_id) REFERENCES Authors(author_id)
-);
+    if connection.is_connected():
+        cursor = connection.cursor()
+        # إنشاء قاعدة البيانات إذا لم تكن موجودة مسبقًا
+        cursor.execute("CREATE DATABASE IF NOT EXISTS alx_book_store")
+        print("Database 'alx_book_store' created successfully!")
 
--- جدول Customers
-CREATE TABLE Customers (
-    customer_id INT PRIMARY KEY AUTO_INCREMENT,
-    customer_name VARCHAR(215) NOT NULL,
-    email VARCHAR(215),
-    address TEXT
-);
+except Error as e:
+    print(f"Error while connecting to MySQL: {e}")
 
--- جدول Orders
-CREATE TABLE Orders (
-    order_id INT PRIMARY KEY AUTO_INCREMENT,
-    customer_id INT,
-    order_date DATE,
-    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
-);
-
--- جدول Order_Details
-CREATE TABLE Order_Details (
-    orderdetail_id INT PRIMARY KEY AUTO_INCREMENT,
-    order_id INT,
-    book_id INT,
-    quantity DOUBLE,
-    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
-    FOREIGN KEY (book_id) REFERENCES Books(book_id)
-);
+finally:
+    # غلق الاتصال بشكل آمن
+    if connection.is_connected():
+        cursor.close()
+        connection.close()
